@@ -1,0 +1,24 @@
+FROM golang:1.23.5 AS build-stage
+
+WORKDIR /pinger
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY cmd/pinger/ ./cmd
+COPY internal/handlers/error.go ./internal/handelrs/error.go
+COPY internal/shared/config/ ./internal/shared/config
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd
+
+FROM alpine:latest
+
+WORKDIR /pinger
+
+COPY --from=build-stage /pinger/main .
+
+COPY configs/pinger.yaml /configs/
+
+EXPOSE 8081
+
+CMD ["./main"]

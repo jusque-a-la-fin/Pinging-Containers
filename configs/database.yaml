@@ -1,0 +1,7 @@
+postgre:
+    username: postgres
+    password: password
+    host: database
+    port: 5432
+    database: monitoring
+    sslmode: disable
