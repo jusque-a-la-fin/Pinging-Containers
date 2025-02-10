@@ -22,7 +22,7 @@ func SetupBackendConfig(name1, name2, name3 string) error {
 
 	viper.SetConfigName(name3)
 	if err := viper.MergeInConfig(); err != nil {
-		return fmt.Errorf("error reading second config file: %s", err)
+		return fmt.Errorf("error reading third config file: %s", err)
 	}
 	return nil
 }

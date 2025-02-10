@@ -56,7 +56,7 @@ func main() {
 
 	port := viper.GetString("port")
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		fmt.Println("Error starting server:", err)
+		log.Fatal("Error starting server:", err)
 	}
 }
 
@@ -127,7 +127,6 @@ func pingIP(ip string, wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 	if err == nil {
 		ctr.IsSuccess = true
 		ctr.SuccessPingTime = pingTime
-	} else {
 	}
 
 	jsonData, err := json.Marshal(ctr)

@@ -8,8 +8,9 @@ import (
 func (repo *BackendDBRepository) UpdateContainer(ctr Container) error {
 	err := AddContainer(repo.dtb, ctr)
 	if err != nil {
+		return fmt.Errorf("error returned from function `AddContainer`, package `backend`: %v", err)
 	}
-	return err
+	return nil
 }
 
 func UpdatePingSuccessTime(dtb *sql.DB, ctr Container) error {
@@ -20,10 +21,13 @@ func UpdatePingSuccessTime(dtb *sql.DB, ctr Container) error {
 
 	_, err := dtb.Exec(query, ctr.SuccessPingTime, ctr.IPv4)
 	if err != nil {
-		return fmt.Errorf("ошибка запроса к базе данных: обновление даты последней успешной попытки: %v", err)
+		return fmt.Errorf("error while updating time of a successful ping: %v", err)
 	}
 
-	AddPingTime(dtb, ctr)
+	err = AddPingTime(dtb, ctr)
+	if err != nil {
+		return fmt.Errorf("error returned from function `AddPingTime`, package `backend`: %v", err)
+	}
 	return nil
 }
 
@@ -32,7 +36,7 @@ func AddContainer(dtb *sql.DB, ctr Container) error {
 	query := `SELECT EXISTS(SELECT 1 FROM containers WHERE ipv4 = $1)`
 	err := dtb.QueryRow(query, ctr.IPv4).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("ошибка запроса к базе данных: проверка существования контейнера: %v", err)
+		return fmt.Errorf("error while checking if a container exists: %v", err)
 	}
 
 	if exists && ctr.IsSuccess {
@@ -41,7 +45,7 @@ func AddContainer(dtb *sql.DB, ctr Container) error {
 		query = `INSERT INTO containers (ipv4, success_ping_time) VALUES ($1, $2);`
 		_, err = dtb.Exec(query, ctr.IPv4, ctr.SuccessPingTime)
 		if err != nil {
-			return fmt.Errorf("ошибка запроса к базе данных: обновление времени пинга: %v", err)
+			return fmt.Errorf("error while adding container info: %v", err)
 		}
 	}
 	AddPingTime(dtb, ctr)
@@ -52,7 +56,7 @@ func AddPingTime(dtb *sql.DB, ctr Container) error {
 	query := `INSERT INTO ping_results (ping_time, container_ipv4) VALUES ($1, $2);`
 	_, err := dtb.Exec(query, ctr.PingDuration, ctr.IPv4)
 	if err != nil {
-		return fmt.Errorf("ошибка запроса к базе данных: добавление времени пинга: %v", err)
+		return fmt.Errorf("error while adding time of the ping: %v", err)
 	}
 	return nil
 }

@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"log"
+	"fmt"
 )
 
 func (repo *BackendDBRepository) GetLogs() ([]Container, error) {
@@ -11,7 +11,7 @@ func (repo *BackendDBRepository) GetLogs() ([]Container, error) {
 
 	rows, err := repo.dtb.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("error while getting containers info: %v", err)
 	}
 	defer rows.Close()
 
@@ -19,14 +19,14 @@ func (repo *BackendDBRepository) GetLogs() ([]Container, error) {
 	for rows.Next() {
 		ctr := Container{}
 		if err := rows.Scan(&ctr.ID, &ctr.IPv4, &ctr.PingDuration, &ctr.SuccessPingTime); err != nil {
-			log.Fatal(err)
+			return nil, fmt.Errorf("error returned from method `Scan`, package `sql`: %v", err)
 		}
 		cns = append(cns, ctr)
 
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("error while iterating over rows returned by query: %v", err)
 	}
 	return cns, nil
 }
