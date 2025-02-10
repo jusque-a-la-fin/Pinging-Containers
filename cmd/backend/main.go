@@ -5,12 +5,12 @@ import (
 	"monitoring/internal/backend"
 	"monitoring/internal/datastore"
 	bkd "monitoring/internal/handlers/backend"
+	"monitoring/internal/queue"
 	"monitoring/internal/shared/config"
 	"net/http"
 	"sync"
 
 	"github.com/gorilla/mux"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
 )
@@ -19,7 +19,8 @@ func main() {
 	var wg sync.WaitGroup
 	configName1 := "backend"
 	configName2 := "database"
-	if err := config.SetupBackendConfig(configName1, configName2); err != nil {
+	configName3 := "rabbitmq"
+	if err := config.SetupBackendConfig(configName1, configName2, configName3); err != nil {
 		log.Fatalf("failed to load the config file: %s", err.Error())
 	}
 
@@ -54,27 +55,10 @@ func main() {
 	}()
 
 	wg.Add(1)
-	InitReceiver(backendHanlder, &wg)
-	wg.Wait()
-}
-
-func InitReceiver(hnd *bkd.BackendHandler, wg *sync.WaitGroup) {
-	conn, err := amqp.Dial("amqp://user:password@rabbitmq:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
+	conn, ch, queueName := queue.CreateQueue()
 	defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	queue, err := ch.QueueDeclare(
-		"monitoring",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	failOnError(err, "Failed to declare a queue")
-	ReceiveMessages(hnd, ch, queue.Name, wg)
+	queue.ReceiveMessages(backendHanlder, ch, queueName, &wg)
+	wg.Wait()
 }

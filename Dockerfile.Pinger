@@ -6,6 +6,10 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY cmd/pinger/ ./cmd
+COPY internal/queue/ ./internal/queue
+COPY internal/handlers/backend/ ./internal/handlers/backend
+COPY internal/backend/ ./internal/backend
+COPY internal/handlers/ ./internal/handlers
 COPY internal/handlers/error.go ./internal/handelrs/error.go
 COPY internal/shared/config/ ./internal/shared/config
 
@@ -18,6 +22,7 @@ WORKDIR /pinger
 COPY --from=build-stage /pinger/main .
 
 COPY configs/pinger.yaml /configs/
+COPY configs/rabbitmq.yaml /configs/
 
 EXPOSE 8081
 

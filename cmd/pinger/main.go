@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"monitoring/internal/queue"
 	"monitoring/internal/shared/config"
 	"net/http"
 	"os/exec"
@@ -24,35 +25,21 @@ type Container struct {
 	IsSuccess       bool   `json:"IsSuccess"`
 }
 
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Panicf("%s: %s", msg, err)
-	}
-}
-
 func main() {
-	excludedContainers := []string{"pinger"}
+	excludedContainers := []string{"pinger", "rabbitmq", "database", "backend"}
 	cns, err := getAllContainersList(excludedContainers)
 	if err != nil {
 	}
 
-	conn, err := amqp.Dial("amqp://user:password@rabbitmq:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
+	configName1 := "pinger"
+	configName2 := "rabbitmq"
+	if err := config.SetupPingerConfig(configName1, configName2); err != nil {
+		log.Fatalf("failed to load the config file: %s", err.Error())
+	}
+
+	conn, ch, queueName := queue.CreateQueue()
 	defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
-
-	queue, err := ch.QueueDeclare(
-		"monitoring",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	failOnError(err, "Failed to declare a queue")
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -62,14 +49,9 @@ func main() {
 
 		for _, ctr := range cns {
 			wg.Add(1)
-			go pingIP(ctr.IPv4, &wg, ch, queue.Name)
+			go pingIP(ctr.IPv4, &wg, ch, queueName)
 		}
 		wg.Wait()
-	}
-
-	configName := "pinger"
-	if err := config.SetupPingerConfig(configName); err != nil {
-		log.Fatalf("failed to load the config file: %s", err.Error())
 	}
 
 	port := viper.GetString("port")
@@ -148,22 +130,10 @@ func pingIP(ip string, wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {
 	} else {
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	jsonData, err := json.Marshal(ctr)
 	if err != nil {
 		log.Fatalf("Error marshaling to JSON: %v", err)
 	}
 
-	err = ch.PublishWithContext(ctx,
-		"",
-		queueName,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        []byte(jsonData),
-		})
-	failOnError(err, "Failed to publish a message")
+	queue.SendMessages(ch, jsonData, queueName)
 }

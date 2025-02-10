@@ -15,7 +15,7 @@ const App = () => {
       setButton1Disabled(true);
     }
     try {
-      const response = await fetch('http://localhost:8080/logs', { method: 'GET' });
+      const response = await fetch('/get/', { method: 'GET' });
       const result = await response.json();
       setData(result);
       if (action === 'fetch') {

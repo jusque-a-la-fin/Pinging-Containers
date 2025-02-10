@@ -1,4 +1,15 @@
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.Nginx
+    ports:
+      - "80:80"  
+    depends_on:
+      - frontend
+      - backend
+      - pinger
+      
   rabbitmq:
     image: rabbitmq:4.0.5-management-alpine
     container_name: rabbitmq

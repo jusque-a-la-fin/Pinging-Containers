@@ -1,18 +1,11 @@
-package main
+package queue
 
 import (
-	"log"
 	bkd "monitoring/internal/handlers/backend"
 	"sync"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
-
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Panicf("%s: %s", msg, err)
-	}
-}
 
 func ReceiveMessages(hnd *bkd.BackendHandler, ch *amqp.Channel, queueName string, wg *sync.WaitGroup) {
 	msgs, err := ch.Consume(

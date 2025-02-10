@@ -8,6 +8,7 @@ RUN go mod download
 COPY cmd/backend/ ./cmd
 COPY internal/backend/ ./internal/backend
 COPY internal/datastore/ ./internal/datastore
+COPY internal/queue/ ./internal/queue
 COPY internal/handlers/backend/ ./internal/handlers/backend
 COPY internal/handlers/ ./internal/handlers
 COPY internal/shared/config/ ./internal/shared/config
@@ -22,6 +23,7 @@ COPY --from=build-stage /backend/main .
 
 COPY configs/backend.yaml /configs/
 COPY configs/database.yaml /configs/
+COPY configs/rabbitmq.yaml /configs/
 
 EXPOSE 8080
 

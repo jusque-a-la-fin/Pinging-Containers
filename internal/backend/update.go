@@ -5,17 +5,6 @@ import (
 	"fmt"
 )
 
-func (repo *BackendDBRepository) UpdateContainers(cts []Container) error {
-	for _, ctr := range cts {
-		err := AddContainer(repo.dtb, ctr)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (repo *BackendDBRepository) UpdateContainer(ctr Container) error {
 	err := AddContainer(repo.dtb, ctr)
 	if err != nil {
@@ -63,7 +52,7 @@ func AddPingTime(dtb *sql.DB, ctr Container) error {
 	query := `INSERT INTO ping_results (ping_time, container_ipv4) VALUES ($1, $2);`
 	_, err := dtb.Exec(query, ctr.PingDuration, ctr.IPv4)
 	if err != nil {
-		return fmt.Errorf("ошибка запроса к базе данных: обновление времени пинга: %v", err)
+		return fmt.Errorf("ошибка запроса к базе данных: добавление времени пинга: %v", err)
 	}
 	return nil
 }
