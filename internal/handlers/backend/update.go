@@ -28,6 +28,6 @@ func (hnd *BackendHandler) UpdateContainers(jsonData []byte) {
 	ctr.SuccessPingTime = resp.SuccessPingTime
 	err = hnd.BackendRepo.UpdateContainer(ctr)
 	if err != nil {
-		log.Printf("error while updating container info: %v", err)
+		log.Printf("error returned from method `UpdateContainer`, package `backend`: %v", err)
 	}
 }
