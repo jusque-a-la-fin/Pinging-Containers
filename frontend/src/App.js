@@ -1,52 +1,25 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import DataTable from './components/DataTable';
-import Preloader from './components/Preloader';
+import Container from './components/Single';
+import Containers from './components/Many';
 
 const App = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [button1Disabled, setButton1Disabled] = useState(false);
-  const [button2Disabled, setButton2Disabled] = useState(true);
+  const [showManyComponent, setManyComponent] = useState(true);
+  const [showSingleComponent, setSingleComponent] = useState(true);
 
-  const handleData = async (action) => {
-    setLoading(true);
-    if (action === 'fetch') {
-      setButton1Disabled(true);
-    }
-    try {
-      const response = await fetch('/get/', { method: 'GET' });
-      const result = await response.json();
-      setData(result);
-      if (action === 'fetch') {
-        setButton2Disabled(false);
-      }
-    } catch (error) {
-      console.error(`Error ${action === 'fetch' ? 'fetching' : 'updating'} data:`, error);
-    } finally {
-      setLoading(false);
-    }
+  const handleDropdownToggle = () => {
+    setManyComponent(false); 
+  };
+
+  const handleFetchData = () => {
+    setSingleComponent(false); 
   };
 
   return (
     <div className="container mt-5 d-flex flex-column align-items-center">
-      <h1 className="mb-4">Мониторинг Docker контейнеров</h1>
-      {!loading && data.length === 0 && (
-        <div className="mb-3">
-          <button className="btn btn-primary" onClick={() => handleData('fetch')} disabled={button1Disabled}>
-          Получить данные
-          </button>
-        </div>
-      )}
-      {loading && <Preloader />}
-      {!loading && data.length > 0 && (
-        <>
-          <button className="btn btn-secondary mb-3" onClick={() => handleData('update')} disabled={button2Disabled}>
-          Обновить данные
-          </button>
-          <DataTable data={data} />
-        </>
-      )}
+       <h1 className="mb-4">Мониторинг Docker контейнеров</h1>
+      {showManyComponent && <Containers onFetchData={handleFetchData} />}
+      {showSingleComponent && <Container onSelectOption={handleDropdownToggle} />}
     </div>
   );
 };

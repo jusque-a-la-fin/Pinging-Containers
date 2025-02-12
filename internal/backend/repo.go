@@ -4,6 +4,8 @@ import "database/sql"
 
 type BackendRepo interface {
 	GetLogs() ([]Container, error)
+	GetList() ([]string, error)
+	GetContainer(ipv4 string) (*ContainerStat, error)
 	UpdateContainer(ctr Container) error
 }
 

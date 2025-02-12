@@ -7,6 +7,7 @@ import (
 	"log"
 	"monitoring/internal/queue"
 	"monitoring/internal/shared/config"
+	"monitoring/internal/utils"
 	"net/http"
 	"os/exec"
 	"sync"
@@ -26,7 +27,7 @@ type Container struct {
 }
 
 func main() {
-	excludedContainers := []string{"pinger", "rabbitmq", "database", "backend"}
+	excludedContainers := []string{"pinger", "rabbitmq", "database", "backend", "frontend", "nginx"}
 	cns, err := getAllContainersList(excludedContainers)
 	if err != nil {
 	}
@@ -76,11 +77,11 @@ func getAllContainersList(names []string) ([]Container, error) {
 	for _, container := range containers {
 		containerName := container.Names[0][1:]
 
-		if contains(names, containerName) {
+		if utils.Сontains(names, containerName) {
 			continue
 		}
 
-		ip, err := getContainerIP(cli, container.ID)
+		ip, err := utils.GetContainerIP(cli, container.ID)
 		if err != nil {
 			log.Fatalf("Error getting container IP: %v", err)
 		}
@@ -90,27 +91,6 @@ func getAllContainersList(names []string) ([]Container, error) {
 		cns = append(cns, ctr)
 	}
 	return cns, nil
-}
-
-func contains(slice []string, item string) bool {
-	for _, v := range slice {
-		if v == item {
-			return true
-		}
-	}
-	return false
-}
-
-func getContainerIP(cli *client.Client, containerID string) (string, error) {
-	inspect, err := cli.ContainerInspect(context.Background(), containerID)
-	if err != nil {
-		return "", fmt.Errorf("fetching IP fails for container %s: %w", containerID, err)
-	}
-
-	for _, network := range inspect.NetworkSettings.Networks {
-		return network.IPAddress, nil
-	}
-	return "", fmt.Errorf("no IP address found for container %s", containerID)
 }
 
 func pingIP(ip string, wg *sync.WaitGroup, ch *amqp.Channel, queueName string) {

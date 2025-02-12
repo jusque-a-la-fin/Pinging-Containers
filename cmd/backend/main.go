@@ -36,6 +36,8 @@ func main() {
 
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/logs", backendHanlder.GetLogs).Methods("GET")
+	rtr.HandleFunc("/list", backendHanlder.GetList).Methods("GET")
+	rtr.HandleFunc("/container/{id}", backendHanlder.GetContainer).Methods("GET")
 
 	crs := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"},

@@ -7,3 +7,8 @@ type Container struct {
 	SuccessPingTime string `json:"SuccessPingTime"`
 	IsSuccess       bool   `json:"-"`
 }
+
+type ContainerStat struct {
+	SuccessPingTime string   `json:"SuccessPingTime"`
+	PingDurations   []string `json:"PingDurations"`
+}

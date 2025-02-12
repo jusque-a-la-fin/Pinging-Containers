@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (hnd *BackendHandler) GetLogs(wrt http.ResponseWriter, rqt *http.Request) {
+func (hnd *BackendHandler) GetList(wrt http.ResponseWriter, rqt *http.Request) {
 	if rqt.Method != http.MethodGet {
 		errSend := handlers.SendBadReq(wrt)
 		if errSend != nil {
@@ -16,14 +16,14 @@ func (hnd *BackendHandler) GetLogs(wrt http.ResponseWriter, rqt *http.Request) {
 		return
 	}
 
-	cns, err := hnd.BackendRepo.GetLogs()
+	ips, err := hnd.BackendRepo.GetList()
 	if err != nil {
-		log.Printf("error returned from function `GetLogs`, package `backend`: %v", err)
+		log.Printf("error returned from function `GetList`, package `backend`: %v", err)
 	}
 
 	wrt.Header().Set("Content-Type", "application/json")
 	wrt.WriteHeader(http.StatusOK)
-	errJSON := json.NewEncoder(wrt).Encode(cns)
+	errJSON := json.NewEncoder(wrt).Encode(ips)
 	if errJSON != nil {
 		log.Printf("error while sending response: %v\n", errJSON)
 	}

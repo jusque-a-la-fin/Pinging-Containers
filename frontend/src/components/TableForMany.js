@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DataTable = ({ data }) => {
+const TableForMany = ({ data }) => {
   return (
     <table className="table table-bordered mt-3">
       <thead className="thead-light">
@@ -25,5 +25,4 @@ const DataTable = ({ data }) => {
   );
 };
 
-export default DataTable;
-
+export default TableForMany;

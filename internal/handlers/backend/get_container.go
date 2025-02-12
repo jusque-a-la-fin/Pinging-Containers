@@ -5,9 +5,11 @@ import (
 	"log"
 	"monitoring/internal/handlers"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func (hnd *BackendHandler) GetLogs(wrt http.ResponseWriter, rqt *http.Request) {
+func (hnd *BackendHandler) GetContainer(wrt http.ResponseWriter, rqt *http.Request) {
 	if rqt.Method != http.MethodGet {
 		errSend := handlers.SendBadReq(wrt)
 		if errSend != nil {
@@ -16,14 +18,15 @@ func (hnd *BackendHandler) GetLogs(wrt http.ResponseWriter, rqt *http.Request) {
 		return
 	}
 
-	cns, err := hnd.BackendRepo.GetLogs()
+	ipv4 := mux.Vars(rqt)["id"]
+	ips, err := hnd.BackendRepo.GetContainer(ipv4)
 	if err != nil {
-		log.Printf("error returned from function `GetLogs`, package `backend`: %v", err)
+		log.Printf("error returned from function `GetContainer`, package `backend`: %v", err)
 	}
 
 	wrt.Header().Set("Content-Type", "application/json")
 	wrt.WriteHeader(http.StatusOK)
-	errJSON := json.NewEncoder(wrt).Encode(cns)
+	errJSON := json.NewEncoder(wrt).Encode(ips)
 	if errJSON != nil {
 		log.Printf("error while sending response: %v\n", errJSON)
 	}

@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.Nginx
+    container_name: nginx
     ports:
       - "80:80"  
     depends_on:
@@ -29,6 +30,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.Frontend
+    container_name: frontend
     ports:
       - "3000:3000"
     depends_on:
@@ -39,6 +41,8 @@ services:
       context: .
       dockerfile: Dockerfile.Backend
     container_name: backend
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
     depends_on:
