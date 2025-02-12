@@ -18,7 +18,7 @@ func (hnd *BackendHandler) GetLogs(wrt http.ResponseWriter, rqt *http.Request) {
 
 	cns, err := hnd.BackendRepo.GetLogs()
 	if err != nil {
-		log.Printf("error returned from function `GetLogs`, package `backend`: %v", err)
+		log.Printf("error returned from method `GetLogs`, package `backend`: %v", err)
 	}
 
 	wrt.Header().Set("Content-Type", "application/json")
