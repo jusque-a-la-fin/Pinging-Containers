@@ -26,6 +26,7 @@ type Container struct {
 	IsSuccess       bool   `json:"IsSuccess"`
 }
 
+// Сервис Pinger
 func main() {
 	excludedContainers := []string{"pinger", "rabbitmq", "database", "backend", "frontend", "nginx"}
 	cns, err := getAllContainersList(excludedContainers)

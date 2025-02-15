@@ -1,18 +1,6 @@
 services:
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.Nginx
-    container_name: nginx
-    ports:
-      - "80:80"  
-    depends_on:
-      - frontend
-      - backend
-      - pinger
-      
   rabbitmq:
-    image: rabbitmq:4.0.5-management-alpine
+    image: rabbitmq:4.0.6-alpine
     container_name: rabbitmq
     ports:
       - "5672:5672"  
@@ -26,16 +14,18 @@ services:
       timeout: 5s
       retries: 5
 
+# Frontend-сервис
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.Frontend
     container_name: frontend
     ports:
-      - "3000:3000"
+      - "80:80"
     depends_on:
       - backend
   
+  # Backend-сервис
   backend:
     build:
       context: .
@@ -49,6 +39,7 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  # База данных PostgreSQL
   database:
     image: postgres:17.2-alpine3.21
     container_name: database
@@ -62,6 +53,7 @@ services:
       - database:/var/lib/postgresql/data
       - ./sql-scripts/monitoring.sql:/docker-entrypoint-initdb.d/monitoring.sql
 
+  # Сервис Pinger
   pinger:
     build:
       context: .
@@ -90,7 +82,6 @@ services:
   memcached:
     image: memcached
     command: ["tail", "-f", "/dev/null"]
-
 
 volumes:
   database:

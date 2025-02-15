@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Backend-сервис
 func main() {
 	var wg sync.WaitGroup
 	configName1 := "backend"

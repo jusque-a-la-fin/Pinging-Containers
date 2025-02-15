@@ -1,11 +1,11 @@
-.btn-custom-red {
-    background-color: red;
-    color: white; 
-    margin: 1rem 0;
-    border: none;
-  }
+.btn-red {
+  background-color: red;
+  color: white;
+  margin: 1rem 0;
+}
   
-  .btn-custom-red:hover {
-    background-color: darkred; 
-  }
+.btn-red:hover {
+  background-color: darkred; 
+  color: white;
+}
   
